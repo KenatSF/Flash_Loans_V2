@@ -1,6 +1,6 @@
 // For a successfull flashloan the blocknumber is required at: 13009534
 
-const { amount_In_filter, amount_Out_filter, erc20_approve, erc20_transfer, erc20_balance, getAmountsOut_router_v2, swap_router_v2 } = require('./utils');
+const { amount_In_filter, amount_Out_filter, erc20_approve, erc20_transfer, erc20_balance, getAmountsOut_router_v2, swap_router_v2, erc20_allowance } = require('./utils');
 
 const IERC20 = artifacts.require("IERC20");
 const flash = artifacts.require("Flashy");
@@ -98,6 +98,8 @@ contract('Flash Loan: Aave with Sushiswap & Uniswap V2', () => {
         // Variables
         var weth_account_balance, eth_account_balance, rari_account_balance;
         var weth_contract_balance, eth_contract_balance, rari_contract_balance;
+        // Extra variables, amount_allowed;
+        var amount_allowed, amount_allowed_1;
  
 
         console.log('-----------------------------------------------------------');
@@ -137,11 +139,60 @@ contract('Flash Loan: Aave with Sushiswap & Uniswap V2', () => {
 
 
         console.log('-----------------------------------------------------------');
-        console.log('Swapping WETH for RARI: ');
+        console.log('First Check Approve');
+        amount_allowed = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, defi['UNI_ROUTER']);
+        amount_allowed_1 = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45');    
+        console.log(`Amount: ${amount_allowed} approved from: ${account_address} to: Uni_V2`);
+        console.log(`Amount: ${amount_allowed_1} approved from: ${account_address} to: Uni_V3`);
+        console.log(" ");
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('First Approving amount to spender');
+        await erc20_approve(web3, token_name_erc20['WETH'], account_address, '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45', funding_amount + 5, 18);
         const amount_expected = await getAmountsOut_router_v2(web3, defi['UNI_ROUTER'], funding_amount, 18, [token_name_erc20['WETH'], token_name_erc20['RARI']], 18);
         await erc20_approve(web3, token_name_erc20['WETH'], account_address, defi['UNI_ROUTER'], funding_amount, 18);
+        console.log(" ");
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('Second Check Approve');
+        amount_allowed = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, defi['UNI_ROUTER']);
+        amount_allowed_1 = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45');   
+        console.log(`Amount: ${amount_allowed} approved from: ${account_address} to: Uni_V2`);
+        console.log(`Amount: ${amount_allowed_1} approved from: ${account_address} to: Uni_V3`);
+        console.log(" ");
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('Swapping WETH for RARI: ');
         await swap_router_v2(web3, defi['UNI_ROUTER'], funding_amount, 18, amount_expected, 18, [token_name_erc20['WETH'], token_name_erc20['RARI']], account_address);
-        
+        console.log(" ");
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('Third Check Approve');
+        amount_allowed = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, defi['UNI_ROUTER']);
+        amount_allowed_1 = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45');
+        console.log(`Amount: ${amount_allowed} approved from: ${account_address} to: Uni_V2`);
+        console.log(`Amount: ${amount_allowed_1} approved from: ${account_address} to: Uni_V3`);
+        console.log(" ");
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('Second Approving amount to spender');
+        await erc20_approve(web3, token_name_erc20['WETH'], account_address, '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45', 0, 18);
+        console.log(" ");
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('Third Check Approve');
+        amount_allowed = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, defi['UNI_ROUTER']);
+        amount_allowed_1 = await erc20_allowance(web3, token_name_erc20['WETH'], account_address, '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45');
+        console.log(`Amount: ${amount_allowed} approved from: ${account_address} to: Uni_V2`);
+        console.log(`Amount: ${amount_allowed_1} approved from: ${account_address} to: Uni_V3`);
+        console.log(" ");
+
 
         console.log('-----------------------------------------------------------');
         console.log('Third Balance Check');

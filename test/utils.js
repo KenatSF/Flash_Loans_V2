@@ -113,6 +113,22 @@ function amount_Out_filter(web3, n, decimals) {
 }
 
 //######################################################################################################    Functions for Tokens ERC20
+async function erc20_allowance(web3, erc20_address, _owner, _spender) {
+    try {
+        const abi = erc20_abi;
+        const contract = new web3.eth.Contract(abi, erc20_address);
+
+        
+        const amountAllowed = await contract.methods.allowance(_owner, _spender).call();
+        return amountAllowed;
+
+    } catch (e) {
+        console.log("------------------------------------");
+        console.log("ERROR in: erc20_approve()")
+        console.log(e);
+    }
+}
+
 async function erc20_approve(web3, erc20_address,  _from, _to, _amount_for_approval, _decimals) {
     try {
         const abi = erc20_abi;
@@ -204,6 +220,7 @@ async function swap_router_v2(web3, router_address, _amountIn, _decimals_in, _am
 module.exports = {  
     amount_Out_filter: amount_Out_filter, 
     amount_In_filter: amount_In_filter, 
+    erc20_allowance: erc20_allowance,
     erc20_approve: erc20_approve,
     erc20_transfer: erc20_transfer,
     erc20_balance: erc20_balance,
