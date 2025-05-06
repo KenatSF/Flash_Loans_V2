@@ -1,6 +1,6 @@
 // For a successfull flashloan the blocknumber is required at: 13009534
 
-const { amount_In_filter, amount_Out_filter, erc20_approve, erc20_transfer, erc20_balance, getAmountsOut_router_v2, swap_router_v2, erc20_allowance } = require('./utils');
+const { amount_In_filter, amount_Out_filter, erc20_approve, erc20_transfer, erc20_balance, weth_withdraw, getAmountsOut_router_v2, swap_router_v2, erc20_allowance } = require('./utils');
 
 const IERC20 = artifacts.require("IERC20");
 const flash = artifacts.require("Flashy");
@@ -93,7 +93,7 @@ contract('Flash Loan: Aave with Sushiswap & Uniswap V2', () => {
         console.log("Swapping on Uniswap");
 
         // Amount to fund contract for swapping for token TOKE:
-        const funding_amount = 10;
+        const funding_amount = 100;
         
         // Variables
         var weth_account_balance, eth_account_balance, rari_account_balance;
@@ -327,7 +327,37 @@ contract('Flash Loan: Aave with Sushiswap & Uniswap V2', () => {
         console.log(`${token_address_erc20[rari.address]} balance of my contract :${amount_Out_filter(web3, rari_contract_balance, 18)}`);
         console.log(" ");
 
+
+        console.log('-----------------------------------------------------------');
+        console.log('Withdraw WETH into ETH');
+        await weth_withdraw(web3, token_name_erc20['WETH'], my_address, amount_Out_filter(web3, weth_account_balance, 18), 18);
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('Fourth Balance Check');
         
+        // Account:
+        weth_account_balance = await weth.balanceOf(my_address)
+        eth_account_balance = await web3.eth.getBalance(my_address);
+        rari_account_balance = await rari.balanceOf(my_address);
+        
+        // Contract: 
+        weth_contract_balance = await weth.balanceOf(contract.address);
+        eth_contract_balance = await web3.eth.getBalance(contract.address);
+        rari_contract_balance = await rari.balanceOf(contract.address);
+
+        console.log(" ");
+        console.log('Account: ');
+        console.log(`${token_address_erc20[weth.address]} balance of my account :${amount_Out_filter(web3, weth_account_balance, 18)}`);
+        console.log(`ETH balance of my account :${amount_Out_filter(web3, eth_account_balance, 18)}`);
+        console.log(`${token_address_erc20[rari.address]} balance of my account :${amount_Out_filter(web3, rari_account_balance, 18)}`);
+        console.log(" ");
+        console.log('Contract: ');
+        console.log(`${token_address_erc20[weth.address]} balance of my contract :${amount_Out_filter(web3, weth_contract_balance, 18)}`);
+        console.log(`ETH balance of my contract :${amount_Out_filter(web3, eth_contract_balance, 18)}`);
+        console.log(`${token_address_erc20[rari.address]} balance of my contract :${amount_Out_filter(web3, rari_contract_balance, 18)}`);
+        console.log(" ");
+
         console.log('---------- END           ----------------------------------------------------------------------------------------------');
     });
 
