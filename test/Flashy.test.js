@@ -294,6 +294,40 @@ contract('Flash Loan: Aave with Sushiswap & Uniswap V2', () => {
         console.log(" ");
 
 
+        console.log('-----------------------------------------------------------');
+        console.log("Withdraw Token")
+        await contract.transfer_full_amount(    
+                                                token_name_erc20['WETH'],
+                                                {from: my_address}
+                                            );
+
+
+        console.log('-----------------------------------------------------------');
+        console.log('Third Balance Check');
+        
+        // Account:
+        weth_account_balance = await weth.balanceOf(my_address)
+        eth_account_balance = await web3.eth.getBalance(my_address);
+        rari_account_balance = await rari.balanceOf(my_address);
+        
+        // Contract: 
+        weth_contract_balance = await weth.balanceOf(contract.address);
+        eth_contract_balance = await web3.eth.getBalance(contract.address);
+        rari_contract_balance = await rari.balanceOf(contract.address);
+
+        console.log(" ");
+        console.log('Account: ');
+        console.log(`${token_address_erc20[weth.address]} balance of my account :${amount_Out_filter(web3, weth_account_balance, 18)}`);
+        console.log(`ETH balance of my account :${amount_Out_filter(web3, eth_account_balance, 18)}`);
+        console.log(`${token_address_erc20[rari.address]} balance of my account :${amount_Out_filter(web3, rari_account_balance, 18)}`);
+        console.log(" ");
+        console.log('Contract: ');
+        console.log(`${token_address_erc20[weth.address]} balance of my contract :${amount_Out_filter(web3, weth_contract_balance, 18)}`);
+        console.log(`ETH balance of my contract :${amount_Out_filter(web3, eth_contract_balance, 18)}`);
+        console.log(`${token_address_erc20[rari.address]} balance of my contract :${amount_Out_filter(web3, rari_contract_balance, 18)}`);
+        console.log(" ");
+
+        
         console.log('---------- END           ----------------------------------------------------------------------------------------------');
     });
 
